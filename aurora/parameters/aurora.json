@@ -1,0 +1,15 @@
+[
+  {
+    "ParameterKey": "DatabaseInstanceType",
+    "ParameterValue": "db.t2.small"
+  },
+  {
+    "ParameterKey": "DatabasePassword",
+    "ParameterValue": "conductor"
+  },
+  {
+    "ParameterKey": "DatabaseUsername",
+    "ParameterValue": "conductor"
+  }
+
+]

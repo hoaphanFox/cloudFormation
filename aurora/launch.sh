@@ -1,0 +1,1 @@
+aws cloudformation create-stack --template-body file://templates/aurora.yaml --stack-name aurora --parameters file://parameters/aurora.json --debug
