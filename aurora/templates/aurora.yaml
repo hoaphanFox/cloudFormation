@@ -122,6 +122,10 @@ Resources:
         Ref: DatabasePassword
       MasterUsername:
         Ref: DatabaseUsername
+      VpcSecurityGroupIds:
+        - !GetAtt 
+          - DBEC2SecurityGroup
+          - GroupId
     Type: "AWS::RDS::DBCluster"
 
   RDSDBClusterParameterGroup:
@@ -142,8 +146,6 @@ Resources:
       DBParameterGroupName:
         Ref: RDSDBParameterGroup
       Engine: aurora
-      VPCSecurityGroups:
-        - !Ref DBEC2SecurityGroup
     Type: "AWS::RDS::DBInstance"
 
   RDSDBInstance2:
@@ -157,8 +159,6 @@ Resources:
         Ref: RDSDBParameterGroup
       DBSubnetGroupName: !Ref DBSubnetGroup
       Engine: aurora
-      VPCSecurityGroups:
-        - !Ref DBEC2SecurityGroup
     Type: "AWS::RDS::DBInstance"
 
   RDSDBParameterGroup:
