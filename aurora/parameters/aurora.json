@@ -10,5 +10,9 @@
   {
     "ParameterKey": "DatabaseUsername",
     "ParameterValue": "conductor"
+  },
+  {
+    "ParameterKey": "VPCId",
+    "ParameterValue": "vpc-0ea0e1171fb1b8d55"
   }
 ]

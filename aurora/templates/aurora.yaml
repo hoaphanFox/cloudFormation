@@ -11,31 +11,31 @@ Parameters:
     Type: String
     Default: db.t2.medium
     AllowedValues:
-    - db.m1.small
-    - db.m1.medium
-    - db.m1.large
-    - db.m1.xlarge
-    - db.m2.xlarge
-    - db.m2.2xlarge
-    - db.m2.4xlarge
-    - db.m3.medium
-    - db.m3.large
-    - db.m3.xlarge
-    - db.m3.2xlarge
-    - db.m4.large
-    - db.m4.xlarge
-    - db.m4.2xlarge
-    - db.m4.4xlarge
-    - db.m4.10xlarge
-    - db.r3.large
-    - db.r3.xlarge
-    - db.r3.2xlarge
-    - db.r3.4xlarge
-    - db.r3.8xlarge
-    - db.t2.micro
-    - db.t2.small
-    - db.t2.medium
-    - db.t2.large
+      - db.m1.small
+      - db.m1.medium
+      - db.m1.large
+      - db.m1.xlarge
+      - db.m2.xlarge
+      - db.m2.2xlarge
+      - db.m2.4xlarge
+      - db.m3.medium
+      - db.m3.large
+      - db.m3.xlarge
+      - db.m3.2xlarge
+      - db.m4.large
+      - db.m4.xlarge
+      - db.m4.2xlarge
+      - db.m4.4xlarge
+      - db.m4.10xlarge
+      - db.r3.large
+      - db.r3.xlarge
+      - db.r3.2xlarge
+      - db.r3.4xlarge
+      - db.r3.8xlarge
+      - db.t2.micro
+      - db.t2.small
+      - db.t2.medium
+      - db.t2.large
 
   DatabasePassword:
     AllowedPattern: "[a-zA-Z0-9]+"
@@ -63,6 +63,10 @@ Parameters:
     MaxValue: 16384
     ConstraintDescription: Allocated storage size must be in range 20-16384 GB
 
+  VPCId:
+    Description: 'VPC Id'
+    Type: String
+
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
@@ -84,6 +88,18 @@ Metadata:
         default: Database Username
 
 Resources:
+  DBEC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Ref 'AWS::StackName'
+      GroupName: !Ref 'AWS::StackName'
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: 0.0.0.0/0
+      VpcId: !Ref VPCId
+
   DBSubnetGroup:
     Type: 'AWS::RDS::DBSubnetGroup'
     Properties:
@@ -126,7 +142,8 @@ Resources:
       DBParameterGroupName:
         Ref: RDSDBParameterGroup
       Engine: aurora
-      PubliclyAccessible: "true"
+      VPCSecurityGroups:
+        - !Ref DBEC2SecurityGroup
     Type: "AWS::RDS::DBInstance"
 
   RDSDBInstance2:
@@ -140,12 +157,13 @@ Resources:
         Ref: RDSDBParameterGroup
       DBSubnetGroupName: !Ref DBSubnetGroup
       Engine: aurora
-      PubliclyAccessible: "true"
+      VPCSecurityGroups:
+        - !Ref DBEC2SecurityGroup
     Type: "AWS::RDS::DBInstance"
 
   RDSDBParameterGroup:
     Properties:
-      Description: "CloudFormation Sample Aurora Parameter Group"
+      Description: "Aurora Parameter Group"
       Family: aurora5.6
       Parameters:
         sql_mode: IGNORE_SPACE
