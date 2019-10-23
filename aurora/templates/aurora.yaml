@@ -6,6 +6,37 @@ Parameters:
     Description: The database name (Default "aurora", change if you are creating more than one database)
     Type: String
 
+  DBInstanceClass:
+    #https://docs.amazonaws.cn/en_us/AmazonRDS/latest/AuroraUserGuide/AuroraMySQL.Managing.Performance.html
+    Type: String
+    Default: db.t2.medium
+    AllowedValues:
+    - db.m1.small
+    - db.m1.medium
+    - db.m1.large
+    - db.m1.xlarge
+    - db.m2.xlarge
+    - db.m2.2xlarge
+    - db.m2.4xlarge
+    - db.m3.medium
+    - db.m3.large
+    - db.m3.xlarge
+    - db.m3.2xlarge
+    - db.m4.large
+    - db.m4.xlarge
+    - db.m4.2xlarge
+    - db.m4.4xlarge
+    - db.m4.10xlarge
+    - db.r3.large
+    - db.r3.xlarge
+    - db.r3.2xlarge
+    - db.r3.4xlarge
+    - db.r3.8xlarge
+    - db.t2.micro
+    - db.t2.small
+    - db.t2.medium
+    - db.t2.large
+
   DatabasePassword:
     AllowedPattern: "[a-zA-Z0-9]+"
     ConstraintDescription: must contain only alphanumeric characters. Must have length 8-41.
@@ -90,7 +121,8 @@ Resources:
       AvailabilityZone: ap-southeast-2a
       DBClusterIdentifier:
         Ref: RDSCluster
-      DBInstanceClass: db.r3.xlarge
+      DBInstanceClass:
+        Ref: DBInstanceClass
       DBParameterGroupName:
         Ref: RDSDBParameterGroup
       Engine: aurora
@@ -102,7 +134,8 @@ Resources:
       AvailabilityZone: ap-southeast-2b
       DBClusterIdentifier:
         Ref: RDSCluster
-      DBInstanceClass: db.r3.xlarge
+      DBInstanceClass:
+        Ref: DBInstanceClass
       DBParameterGroupName:
         Ref: RDSDBParameterGroup
       DBSubnetGroupName: !Ref DBSubnetGroup
