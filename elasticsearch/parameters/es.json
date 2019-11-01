@@ -1,0 +1,18 @@
+[
+  {
+    "ParameterKey": "DomainName",
+    "ParameterValue": "conductor-elasticsearch-stg"
+  },
+  {
+    "ParameterKey": "ElasticsearchVersion",
+    "ParameterValue": "5.6"
+  },
+  {
+    "ParameterKey": "InstanceType",
+    "ParameterValue": "t2.medium.elasticsearch"
+  },
+  {
+    "ParameterKey": "VPCId",
+    "ParameterValue": "vpc-0ea0e1171fb1b8d55"
+  }
+]

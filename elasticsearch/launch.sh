@@ -1,0 +1,1 @@
+aws cloudformation create-stack --template-body file://templates/es.yaml --stack-name conductorElasticSearch --parameters file://parameters/es.json --debug

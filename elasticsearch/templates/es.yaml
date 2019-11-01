@@ -1,0 +1,75 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: ElasticsearchDomain resource
+Parameters:
+  
+  DomainName:
+    Description: User defined Elasticsearch Domain name
+    Type: String
+  
+  ElasticsearchVersion:
+    # aws es list-elasticsearch-versions --profile martian-foxsports-nonprod
+    Description: User defined Elasticsearch Version
+    Type: String
+  
+  InstanceType:
+    # https://aws.amazon.com/elasticsearch-service/pricing/
+    Type: String
+
+  VPCId:
+    Description: 'VPC Id'
+    Type: String
+
+Resources:
+  ElasticsearchDomain:
+    Type: AWS::Elasticsearch::Domain
+    Properties:
+      DomainName: !Ref DomainName
+      ElasticsearchVersion: !Ref ElasticsearchVersion
+      ElasticsearchClusterConfig:
+        InstanceCount: '1'
+        InstanceType: !Ref InstanceType
+      EBSOptions:
+        EBSEnabled: 'true'
+        Iops: 0
+        VolumeSize: 10
+        VolumeType: standard
+      SnapshotOptions:
+        AutomatedSnapshotStartHour: '0'
+      AccessPolicies:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Deny
+            Principal:
+              AWS: '*'
+            Action: 'es:*'
+            Resource: '*'
+      AdvancedOptions:
+        rest.action.multi.allow_explicit_index: 'true'
+      Tags:
+        - Key: foo
+          Value: bar
+      VPCOptions:
+        SubnetIds:
+          - subnet-0c668f116a1893dfe
+        SecurityGroupIds:
+          - !Ref ESSecurityGroup
+
+  ESSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Ref 'AWS::StackName'
+      GroupName: !Ref 'AWS::StackName'
+      SecurityGroupIngress:
+        - FromPort: '443'
+          IpProtocol: tcp
+          ToPort: '443'
+          CidrIp: 0.0.0.0/0
+      VpcId: !Ref VPCId
+
+Outputs:
+  DomainArn:
+    Value: !GetAtt ElasticsearchDomain.DomainArn
+  DomainEndpoint:
+    Value: !GetAtt ElasticsearchDomain.DomainEndpoint
+  SecurityGroupId:
+    Value: !Ref ESSecurityGroup
