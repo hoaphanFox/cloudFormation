@@ -1,16 +1,16 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: ElasticsearchDomain resource
 Parameters:
-  
+
   DomainName:
     Description: User defined Elasticsearch Domain name
     Type: String
-  
+
   ElasticsearchVersion:
     # aws es list-elasticsearch-versions --profile martian-foxsports-nonprod
     Description: User defined Elasticsearch Version
     Type: String
-  
+
   InstanceType:
     # https://aws.amazon.com/elasticsearch-service/pricing/
     Type: String
@@ -26,7 +26,7 @@ Resources:
       DomainName: !Ref DomainName
       ElasticsearchVersion: !Ref ElasticsearchVersion
       ElasticsearchClusterConfig:
-        InstanceCount: '1'
+        InstanceCount: '2'
         InstanceType: !Ref InstanceType
       EBSOptions:
         EBSEnabled: 'true'
@@ -36,18 +36,19 @@ Resources:
       SnapshotOptions:
         AutomatedSnapshotStartHour: '0'
       AccessPolicies:
-        Version: 2012-10-17
+        Version: '2012-10-17'
         Statement:
-          - Effect: Deny
+          - Effect: Allow
             Principal:
               AWS: '*'
-            Action: 'es:*'
+            Action:
+              - 'es:*'
             Resource: '*'
       AdvancedOptions:
         rest.action.multi.allow_explicit_index: 'true'
       Tags:
-        - Key: foo
-          Value: bar
+        - Key: app
+          Value: conductor
       VPCOptions:
         SubnetIds:
           - subnet-0c668f116a1893dfe
