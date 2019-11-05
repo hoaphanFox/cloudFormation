@@ -1,0 +1,38 @@
+[
+  {
+    "ParameterKey": "DBName",
+    "ParameterValue": "aresmasteridx"
+  },
+  {
+    "ParameterKey": "DBPassword",
+    "ParameterValue": "aresmasteridx"
+  },
+  {
+    "ParameterKey": "DBUser",
+    "ParameterValue": "aresmasteridx"
+  },
+  {
+    "ParameterKey": "VPCId",
+    "ParameterValue": "vpc-0ea0e1171fb1b8d55"
+  },
+  {
+    "ParameterKey": "AuroraEngine",
+    "ParameterValue": "aurora-postgresql"
+  },
+  {
+    "ParameterKey": "AuroraEngineVersion",
+    "ParameterValue": "10.7"
+  },
+  {
+    "ParameterKey": "DBInstanceClass",
+    "ParameterValue": "db.t2.small"
+  },
+  {
+    "ParameterKey": "DBPort",
+    "ParameterValue": "5432"
+  },  
+  {
+    "ParameterKey": "DBParameterGroupFamily",
+    "ParameterValue": "aurora-postgresql10"
+  }
+]

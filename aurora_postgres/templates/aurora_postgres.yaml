@@ -1,0 +1,153 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "RDS"
+
+Parameters:
+  AuroraEngine:
+    Description: 'https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-rds-dbcluster.html'
+    Type: String
+    Default: aurora
+    AllowedValues: [aurora, aurora-mysql, aurora-postgresql]
+
+  AuroraEngineVersion:
+    Description: 'aws rds describe-db-engine-versions --engine aurora-postgresql --query "DBEngineVersions[].EngineVersion" '
+    Type: String
+    Default: 5.6.10a
+
+  DBName:
+    Description: The database name
+    Type: String
+
+  DBUser:
+    NoEcho: 'true'
+    Description: The database admin account username
+    Type: String
+
+  DBPassword:
+    NoEcho: 'true'
+    Description: The database admin account password
+    Type: String
+
+  DBInstanceClass:
+    Description: The database instance type
+    Type: String
+    AllowedValues: [db.t1.micro, db.m1.small, db.m1.medium, db.m1.large, db.m1.xlarge,
+                    db.m2.xlarge, db.m2.2xlarge, db.m2.4xlarge, db.m3.medium, db.m3.large, db.m3.xlarge,
+                    db.m3.2xlarge, db.m4.large, db.m4.xlarge, db.m4.2xlarge, db.m4.4xlarge, db.m4.10xlarge,
+                    db.r3.large, db.r3.xlarge, db.r3.2xlarge, db.r3.4xlarge, db.r3.8xlarge, db.m2.xlarge,
+                    db.m2.2xlarge, db.m2.4xlarge, db.cr1.8xlarge, db.t2.micro, db.t2.small, db.t2.medium,
+                    db.t2.large]
+    Default: db.t2.medium
+    ConstraintDescription: must select a valid database instance type.
+
+  DBPort:
+    Description: 'Port for the DB to run on.'
+    Type: Number
+    Default: 3306
+
+  VPCId:
+    Description: 'VPC Id'
+    Type: String
+    # gitops-production VPC
+    Default: "vpc-0ea0e1171fb1b8d55"
+
+  DBParameterGroupFamily:
+    Description: 'https://docs.aws.amazon.com/cli/latest/reference/rds/create-db-parameter-group.html'
+    Type: String
+    # aws rds describe-db-engine-versions --query "DBEngineVersions[].DBParameterGroupFamily"
+    Default: "aurora-mysql"
+
+Resources:
+  DBEC2SecurityGroup:
+    Properties:
+      GroupDescription: !Ref 'AWS::StackName'
+      GroupName: !Ref 'AWS::StackName'
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: !Ref DBPort
+          ToPort: !Ref DBPort
+          CidrIp: 0.0.0.0/0
+      VpcId: !Ref VPCId
+    Type: AWS::EC2::SecurityGroup
+
+  DBSubnetGroup:
+    Properties:
+      DBSubnetGroupDescription: 'Kubefriendly subnet'
+      DBSubnetGroupName: !Ref DBName
+      SubnetIds: # gitops-production-private-a(10.100.136.0/21)
+        - subnet-03d4e0e0a32c4c9c6
+        # gitops-production-private-b(10.100.144.0/21)
+        - subnet-0d752d0329c47703b
+        # gitops-production-private-c(10.100.152.0/21)
+        - subnet-0c668f116a1893dfe
+    Type: 'AWS::RDS::DBSubnetGroup'
+
+  RDSCluster:
+    #See https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-rds-dbcluster.html#cfn-rds-dbcluster-engine
+    Properties:
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      DatabaseName:
+        Ref: DBName
+      DBClusterParameterGroupName:
+        Ref: RDSDBClusterParameterGroup
+      Engine: !Ref AuroraEngine
+      EngineVersion: !Ref AuroraEngineVersion
+      MasterUserPassword:
+        Ref: DBPassword
+      MasterUsername:
+        Ref: DBUser
+      VpcSecurityGroupIds:
+        - !GetAtt
+          - DBEC2SecurityGroup
+          - GroupId
+    Type: "AWS::RDS::DBCluster"
+
+  RDSDBClusterParameterGroup:
+    Properties:
+      Description: "CloudFormation Sample Aurora Cluster Parameter Group"
+      Family: !Ref DBParameterGroupFamily
+      Parameters:
+        #https://ap-southeast-2.console.aws.amazon.com/rds/home?region=ap-southeast-2#parameter-groups-detail:ids=default.aurora-postgresql10;type=instance
+        max_connections: 200
+    Type: "AWS::RDS::DBClusterParameterGroup"
+
+  RDSDBInstance1:
+    Properties:
+      AvailabilityZone: ap-southeast-2a
+      DBClusterIdentifier:
+        Ref: RDSCluster
+      DBInstanceClass:
+        Ref: DBInstanceClass
+      DBParameterGroupName:
+        Ref: RDSDBParameterGroup
+      Engine: !Ref AuroraEngine
+    Type: "AWS::RDS::DBInstance"
+
+  RDSDBInstance2:
+    Properties:
+      AvailabilityZone: ap-southeast-2b
+      DBClusterIdentifier:
+        Ref: RDSCluster
+      DBInstanceClass:
+        Ref: DBInstanceClass
+      DBParameterGroupName:
+        Ref: RDSDBParameterGroup
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      Engine: !Ref AuroraEngine
+    Type: "AWS::RDS::DBInstance"
+
+  RDSDBParameterGroup:
+    Properties:
+      Description: "RDS Instances Parameter Group"
+      Parameters:
+        log_error_verbosity: verbose
+      Family: !Ref DBParameterGroupFamily  
+    Type: "AWS::RDS::DBParameterGroup"
+
+Outputs:
+  DatabaseEndpoint:
+    Description: The database endpoint
+    Value: !GetAtt RDSCluster.Endpoint.Address
+
+  DatabasePort:
+    Description: The database port
+    Value: !GetAtt RDSCluster.Endpoint.Port
