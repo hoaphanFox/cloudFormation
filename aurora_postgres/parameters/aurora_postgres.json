@@ -25,7 +25,7 @@
   },
   {
     "ParameterKey": "DBInstanceClass",
-    "ParameterValue": "db.t2.small"
+    "ParameterValue": "db.t3.medium"
   },
   {
     "ParameterKey": "DBPort",
